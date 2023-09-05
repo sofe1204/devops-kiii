@@ -1,0 +1,27 @@
+version: '3'
+services:
+  web:
+    image: nsofeski/cinema-mk1
+    command: java -jar /demo-0.0.1-SNAPSHOT.jar
+    ports:
+      - "4422:4422"
+    volumes:
+      - .:/composeapp
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432  # Use the default PostgreSQL port
+      POSTGRES_DB: cinema-mk
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sofe1243
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:6060/cinema-mk
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    ports:
+      - "6060:6060"  # Expose the PostgreSQL container port
+    environment:
+      POSTGRES_DB: cinema-mk
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sofe1243
+
