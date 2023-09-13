@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cinema-mk-postgres-config
+  namespace: cinema-mk-namespace
+data:
+  POSTGRES_DB: cinema-mk
+  POSTGRES_USER: postgres
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cinema-mk-postgres-secret
+  namespace: cinema-mk-namespace
+type: Opaque
+data:
+  password: c29mZTEyNDM=
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cinema-mk-postgres-pvc1
+  namespace: cinema-mk-namespace
+  labels:
+    app: cinema-mk-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName: local-path
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cinema-mk-postgres
+  namespace: cinema-mk-namespace
+spec:
+  serviceName: cinema-mk-postgres-service
+  selector:
+    matchLabels:
+      app: cinema-mk-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cinema-mk-app
+        namespace: cinema-mk-namespace
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: cinema-mk-postgres-config
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cinema-mk-postgres-secret
+                  key: password
+          ports:
+            - containerPort: 6060
+              name: postgres-port
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: cinema-mk-postgres-data
+              mountPath: /  #/var/lib/postgresql/data
+      volumes:
+        - name: cinema-mk-postgres-data
+          persistentVolumeClaim:
+            claimName: cinema-mk-postgres-pvc1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cinema-mk-postgres-service
+  namespace: cinema-mk-namespace
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 6060

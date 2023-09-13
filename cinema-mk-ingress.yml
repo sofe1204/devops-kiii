@@ -1,0 +1,31 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: cinema-mk-ing
+  namespace: cinema-mk-namespace
+spec:
+  stripPrefix:
+    forceSlash: false
+    prefixes: []
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cinema-mk-ing
+  namespace: cinema-mk-namespace
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    traefik.ingress.kubernetes.io/router.middlewares: cinema-mk-namespace-cinema-mk-ing@kubernetescrd
+spec:
+  rules:
+    - host: sofeski-cinema-mk.mcu.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cinema-mk-service
+                port:
+                  #name: http
+                  number: 4422

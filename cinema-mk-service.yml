@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cinema-mk-service
+  namespace: cinema-mk-namespace
+spec:
+  type: LoadBalancer
+  selector:
+    app: cinema-mk-app
+  ports:
+    - name: http
+      protocol: TCP
+      port: 4422
+      targetPort: 4422
+  sessionAffinity: None
+#spec:
+  #type: ClusterIP
+  #ports:
+ # - port: 4422
+   # targetPort: 4422
+  #selector:
+   # #env: index
+    #app: cinema-mk-app

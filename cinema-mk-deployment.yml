@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cinema-mk-deployment
+  namespace: cinema-mk-namespace
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: cinema-mk-app
+  revisionHistoryLimit: 5
+  minReadySeconds: 20
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  template:
+    metadata:
+      labels:
+        app: cinema-mk-app
+    spec:
+      containers:
+        - name: cinema-mk-container
+          image: nsofeski/cinema-mk1:1.0
+          ports:
+            - containerPort: 4422
+          imagePullPolicy: IfNotPresent
+          command: ["java"]
+          args: ["-jar", "/demo-0.0.1-SNAPSHOT.jar"]
+          envFrom:
+            - configMapRef:
+                name: cinema-mk-config
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cinema-mk-secret
+                  key: password
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cinema-mk-config
+  namespace: cinema-mk-namespace
+data:
+  #POSTGRES_HOST: postgres
+  #POSTGRES_PORT: "6060"
+  POSTGRES_DATABASE: cinema-mk
+  POSTGRES_USER: postgres
+  POSTGRES_URL: jdbc:postgresql://postgres-service:6060/cinema-mk
+  #SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-service:6060/cinema-mk
+   #SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:6060/cinema-mk
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cinema-mk-secret
+  namespace: cinema-mk-namespace
+type: Opaque
+data:
+  password: c29mZTEyNDM=

@@ -4,7 +4,7 @@ services:
     image: nsofeski/cinema-mk1
     command: java -jar /demo-0.0.1-SNAPSHOT.jar
     ports:
-      - "4422:4422"
+      - "4433:4422"
     volumes:
       - .:/composeapp
     environment:
