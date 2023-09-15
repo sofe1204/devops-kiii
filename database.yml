@@ -67,7 +67,7 @@ spec:
           imagePullPolicy: Always
           volumeMounts:
             - name: cinema-mk-postgres-data
-              mountPath: /var/lib/postgresql/data
+              mountPath: / #/var/lib/postgresql/data
       volumes:
         - name: cinema-mk-postgres-data
           persistentVolumeClaim:
